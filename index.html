@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nhật ký ngày học</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/x-icon" href="icon.png">
+  <link rel="icon" type="image/x-icon" href="/icon.png">
   <style>
     body { font-family: Arial, sans-serif; background: #f0f4ff; display: flex; justify-content: center; padding: 20px; }
     .form-step { display: none; }
@@ -20,6 +20,48 @@
     button:hover { background: #1e40af; }
     .emoji { font-size: 30px; text-align: center; margin-top: 10px; }
     #resultBox { display: none; background: #ecfdf5; border: 1px solid #10b981; color: #065f46; padding: 15px; border-radius: 8px; margin-top: 20px; }
+    /* Modal */
+.modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+.hidden { display: none; }
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 400px;
+  max-height: 70%;
+  overflow-y: auto;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.close {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Spinner xoay xoay */
+.spinner {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  width: 40px; height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
   </style>
 </head>
 <body>
@@ -219,6 +261,7 @@ document.getElementById("closeModal").onclick = function() {
 
 </body>
 </html>
+
 
 
 
