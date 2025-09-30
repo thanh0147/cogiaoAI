@@ -56,7 +56,7 @@ async def submit_data(data: StudentData):
     - Lời nhắn cho bản thân: {data.selfNote}
 
     Bạn là một cô giáo và là chuyên gia trong ngành Tâm lí học đường. 
-    Từ những thông tin trên của HS đưa ra, hãy viết một đoạn phân tích ngắn, thân thiện (3-5 câu), giúp học sinh cảm thấy tích cực hơn.
+    Từ những thông tin trên của HS đưa ra, hãy viết một đoạn phân tích ngắn, có thêm 1 số icon tích cực giúp thân thiện và giúp học sinh cảm thấy tích cực hơn.
     """
 
     if data.wantSuggestion:
@@ -68,6 +68,7 @@ async def submit_data(data: StudentData):
 
     result_text = resp.text  # SDK trả về nội dung dưới thuộc tính `text`
     return {"analysis": result_text}
+
 
 
 
