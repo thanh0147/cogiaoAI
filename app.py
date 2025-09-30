@@ -33,6 +33,10 @@ class StudentData(BaseModel):
 #client = genai.Client(api_key="AIzaSyCvOEzoZy4I5hJooz5bpayWI-nY9XLdo_k")  # SDK tự đọc GEMINI_API_KEY hoặc GOOGLE_API_KEY nếu đã set :contentReference[oaicite:4]{index=4}
 genai.configure(api_key=os.getenv("AIzaSyCvOEzoZy4I5hJooz5bpayWI-nY9XLdo_k"))
 
+@app.get("/", response_class=HTMLResponse)
+async def serve_home():
+    return FileResponse("index.html")
+
 @app.post("/submit")
 async def submit_data(data: StudentData):
     # Tạo prompt để gửi cho Gemini
@@ -60,4 +64,5 @@ async def submit_data(data: StudentData):
 
     result_text = resp.text  # SDK trả về nội dung dưới thuộc tính `text`
     return {"analysis": result_text}
+
 
