@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhật ký ngày học</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f4ff; display: flex; justify-content: center; padding: 20px; }
+    .form-step { display: none; }
+    .form-step.active { display: block; }
+    form { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+    h1 { text-align: center; color: #2563eb; }
+    label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; }
+    input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
+    input[type="checkbox"] { width: auto; margin-right: 6px; }
+    input[type="range"] { width: 100%; }
+    button { margin-top: 20px; background: #2563eb; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 8px; cursor: pointer; }
+    button:hover { background: #1e40af; }
+    .emoji { font-size: 30px; text-align: center; margin-top: 10px; }
+    #resultBox { display: none; background: #ecfdf5; border: 1px solid #10b981; color: #065f46; padding: 15px; border-radius: 8px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <form id="studentForm">
+    <h1>Nhật ký ngày học của bạn</h1>
+
+    <!-- Bước 1 -->
+    <div class="form-step active" id="step1">
+      <label for="name">Tên của bạn</label>
+      <input type="text" id="name" name="name" placeholder="Nhập tên (hoặc chọn ẩn danh)">
+      <label><input type="checkbox" id="anonymous" name="anonymous"> Tôi muốn ẩn danh</label>
+
+      <label for="grade">Bạn đang học lớp mấy?</label>
+      <select id="grade" name="grade">
+        <option value="">-- Chọn lớp --</option>
+        <option>Lớp 6</option><option>Lớp 7</option><option>Lớp 8</option><option>Lớp 9</option>
+        <option>Lớp 10</option><option>Lớp 11</option><option>Lớp 12</option>
+      </select>
+
+      <label for="gender">Giới tính</label>
+      <select id="gender" name="gender">
+        <option value="">-- Chọn --</option>
+        <option>Nam</option><option>Nữ</option><option>Khác</option><option>Không muốn trả lời</option>
+      </select>
+
+      <button type="button" onclick="nextStep(1)">Tiếp tục</button>
+    </div>
+
+    <!-- Bước 2 -->
+    <div class="form-step" id="step2">
+      <label for="mood">Hôm nay bạn cảm thấy thế nào? (1-5)</label>
+      <input type="range" id="mood" name="mood" min="1" max="5" value="3">
+      <p>Tâm trạng: <span id="moodValue">3</span> / 5</p>
+      <div class="emoji" id="moodEmoji">😐</div>
+
+      <label for="bestPart">Bạn thích nhất điều gì trong ngày hôm nay?</label>
+      <input type="text" id="bestPart" name="bestPart">
+
+      <label for="notGood">Có điều gì làm bạn chưa vui hoặc mệt mỏi?</label>
+      <input type="text" id="notGood" name="notGood">
+
+      <button type="button" onclick="prevStep(2)">Quay lại</button>
+      <button type="button" onclick="nextStep(2)">Tiếp tục</button>
+    </div>
+
+    <!-- Bước 3 -->
+    <div class="form-step" id="step3">
+      <label for="learned">Bạn học được điều gì mới hôm nay?</label>
+      <input type="text" id="learned" name="learned">
+
+      <label for="selfNote">Bạn muốn nhắn gì với bản thân mình vào cuối ngày hôm nay?</label>
+      <textarea id="selfNote" name="selfNote" rows="3"></textarea>
+
+      <label><input type="checkbox" id="shareWithTeacher" name="shareWithTeacher"> Chia sẻ kết quả với giáo viên</label>
+      <label><input type="checkbox" id="wantSuggestion" name="wantSuggestion"> Tôi muốn nhận một gợi ý tích cực</label>
+
+      <button type="button" onclick="prevStep(3)">Quay lại</button>
+      <button type="submit">Hoàn thành</button>
+    </div>
+  </form>
+
+  <!-- Popup hiển thị kết quả -->
+<div id="resultModal" class="modal hidden">
+  <div class="modal-content">
+    <span id="closeModal" class="close">&times;</span>
+    <div id="loadingSpinner" class="spinner hidden"></div>
+    <div id="resultText"></div>
+  </div>
+</div>
+
+  <script>
+    let currentStep = 1;
+    function showStep(step) {
+      document.querySelectorAll(".form-step").forEach(div => div.classList.remove("active"));
+      document.getElementById("step" + step).classList.add("active");
+      currentStep = step;
+    }
+    function nextStep(step) { showStep(step + 1); }
+    function prevStep(step) { showStep(step - 1); }
+
+    // Cập nhật emoji
+    const moodInput = document.getElementById("mood");
+    const moodValue = document.getElementById("moodValue");
+    const moodEmoji = document.getElementById("moodEmoji");
+    const emojis = { 1:"😢", 2:"😟", 3:"😐", 4:"🙂", 5:"😄" };
+    moodInput.addEventListener("input", () => {
+      moodValue.textContent = moodInput.value;
+      moodEmoji.textContent = emojis[moodInput.value];
+    });
+
+    // Submit form
+document.getElementById("studentForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  // Lấy dữ liệu hiện có trên form (nếu input tồn tại sẽ lấy, nếu không sẽ đặt mặc định)
+  const learning = (document.getElementById("learning")?.value || "").trim();
+  const message = (document.getElementById("message")?.value || "").trim();
+
+  // Nếu bạn có các field khác (nếu dùng form nhiều field), script sẽ lấy chúng, còn không sẽ dùng mặc định
+  const nameEl = document.getElementById("name");
+  const anonymousEl = document.getElementById("anonymous");
+  const gradeEl = document.getElementById("grade");
+  const genderEl = document.getElementById("gender");
+  const moodEl = document.getElementById("mood");
+  const bestPartEl = document.getElementById("bestPart");
+  const notGoodEl = document.getElementById("notGood");
+  const learnedEl = document.getElementById("learned").value;
+  const selfNoteEl = document.getElementById("selfNote").value;
+  const shareEl = document.getElementById("shareWithTeacher");
+  const wantSuggestionEl = document.getElementById("wantSuggestion");
+
+  const name = anonymousEl?.checked ? "Ẩn danh" : (nameEl?.value || "Ẩn danh");
+  const grade = gradeEl?.value || "";
+  const gender = genderEl?.value || "";
+  const mood = moodEl ? Number(moodEl.value || 3) : 3;
+  const bestPart = bestPartEl?.value || "";
+  const notGood = notGoodEl?.value || "";
+  const learned = learnedEl?.value || "";
+  const selfNote = selfNoteEl?.value || "";
+  const shareWithTeacher = !!(shareEl?.checked);
+  const wantSuggestion = !!(wantSuggestionEl?.checked);
+
+  // Tạo payload phù hợp với backend StudentData
+  const payload = {
+    name,
+    grade,
+    gender,
+    mood,
+    bestPart,
+    notGood,
+    learned,    // map input "learning" -> backend.learned
+    selfNote,    // map input "message" -> backend.selfNote
+    shareWithTeacher,
+    wantSuggestion
+  };
+
+  // UI: show modal + spinner
+  const modal = document.getElementById("resultModal");
+  const spinner = document.getElementById("loadingSpinner");
+  const resultText = document.getElementById("resultText");
+  resultText.innerHTML = "";
+  modal.classList.remove("hidden");
+  spinner.classList.remove("hidden");
+
+  try {
+    // CHÚ Ý: dùng cùng host với uvicorn. Nếu bạn chạy uvicorn trên 127.0.0.1:8000, dùng 127.0.0.1
+    const API_URL = "http://127.0.0.1:8000/submit";
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      // lấy body trả về (thường chứa message lỗi) để debug
+      const txt = await res.text();
+      throw new Error(`Server lỗi ${res.status}: ${txt}`);
+    }
+
+    const data = await res.json();
+
+    // Ẩn spinner
+    spinner.classList.add("hidden");
+
+    // Hỗ trợ nhiều kiểu response từ backend (analysis string/object, reply, ...)
+    let output = "";
+    if (data.analysis) {
+      if (typeof data.analysis === "string") output = data.analysis;
+      else if (typeof data.analysis === "object") {
+        // ưu tiên trường summary hoặc mood/score nếu có
+        output = data.analysis.summary || data.analysis.mood || JSON.stringify(data.analysis, null, 2);
+      } else output = String(data.analysis);
+    } else if (data.reply) {
+      output = data.reply;
+    } else if (data.result) {
+      output = data.result;
+    } else {
+      output = JSON.stringify(data);
+    }
+
+    // Hiển thị đẹp trong modal
+    resultText.innerHTML = "<div style='white-space:pre-wrap; line-height:1.6;'>" + output + "</div>";
+
+  } catch (err) {
+    spinner.classList.add("hidden");
+    resultText.innerHTML = `<p style="color:red">Lỗi: ${err.message}</p>`;
+    console.error("Submit error:", err);
+  }
+});
+
+// Đóng popup khi nhấn X
+document.getElementById("closeModal").onclick = function() {
+  document.getElementById("resultModal").classList.add("hidden");
+};
+</script>
+
+</body>
+</html>
