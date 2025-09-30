@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import os
 
@@ -33,6 +35,8 @@ class StudentData(BaseModel):
 #client = genai.Client(api_key="AIzaSyCvOEzoZy4I5hJooz5bpayWI-nY9XLdo_k")  # SDK tự đọc GEMINI_API_KEY hoặc GOOGLE_API_KEY nếu đã set :contentReference[oaicite:4]{index=4}
 genai.configure(api_key=os.getenv("AIzaSyCvOEzoZy4I5hJooz5bpayWI-nY9XLdo_k"))
 
+# Mount thư mục gốc (".") làm static để phục vụ CSS
+app.mount("/static", StaticFiles(directory="."), name="static")
 @app.get("/", response_class=HTMLResponse)
 async def serve_home():
     return FileResponse("index.html")
@@ -64,5 +68,6 @@ async def submit_data(data: StudentData):
 
     result_text = resp.text  # SDK trả về nội dung dưới thuộc tính `text`
     return {"analysis": result_text}
+
 
 
