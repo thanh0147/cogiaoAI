@@ -165,7 +165,7 @@ document.getElementById("studentForm").addEventListener("submit", async function
 
   try {
     // CHÚ Ý: dùng cùng host với uvicorn. Nếu bạn chạy uvicorn trên 127.0.0.1:8000, dùng 127.0.0.1
-    const API_URL = "http://127.0.0.1:8000/submit";
+    const API_URL = "https://cogiaoai.onrender.com/submit";
 
     const res = await fetch(API_URL, {
       method: "POST",
@@ -218,3 +218,4 @@ document.getElementById("closeModal").onclick = function() {
 
 </body>
 </html>
+
